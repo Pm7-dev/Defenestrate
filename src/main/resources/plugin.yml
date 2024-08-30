@@ -1,0 +1,30 @@
+name: Defenestrate
+version: '${project.version}'
+main: me.pm7.defenestrate.Defenestrate
+api-version: 1.21
+authors: [ _Pm7 ]
+description: "Throw blocks, entities, and your friends!"
+commands:
+  settings:
+    description: "Manages the data for the Defenestrate Plugin"
+    usage: "/<command> [get | set | list] [setting] [newValue]"
+    aliases:
+      - throwSettings
+      - defenestrateSettings
+      - defenestrate
+permissions:
+  defenestrate.blocks:
+    description: "Permission to pick up and throw blocks if throwBlocksRequiresPermission is true"
+  defenestrate.players:
+    description: "Permission to pick up and throw players if throwPlayersRequiresPermission is true"
+  defenestrate.entities:
+    description: "Permission to pick up and throw entities if throwEntitiesRequiresPermission is true"
+  defenestrate.settings:
+    description: "Permission to change the settings of the plugin via commands"
+  defenestrate.all:
+    description: "Grants every permission"
+    children:
+      defenestrate.blocks: true
+      defenestrate.players: true
+      defenestrate.entities: true
+      defenestrate.settings: true

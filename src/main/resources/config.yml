@@ -1,0 +1,18 @@
+
+# I'm not sure why, but for some reason velocity applied to players is different compared to entities and blocks
+playerThrowPower: 2
+entityThrowPower: 2
+blockThrowPower: 1
+
+# Which things should be throwable
+playerThrowEnabled: true
+entityThrowEnabled: true
+blockThrowEnabled: false
+
+# If they are throwable, should players without permissions be able to throw these?
+throwPlayersRequiresPermission: false
+throwEntitiesRequiresPermission: false
+throwBlocksRequiresPermission: false
+
+# Allow blocks such as bedrock, end portals, and other strange blocks to be picked up?
+breakThingsMode: false
