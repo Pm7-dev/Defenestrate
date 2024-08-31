@@ -50,7 +50,7 @@ public class settings implements CommandExecutor, TabExecutor {
 
         // Quick argument check
         if(args.length == 0) {
-            p.sendMessage(ChatColor.RED + "This command requires arguments. Use /help settings for more info");
+            p.sendMessage(ChatColor.RED + "This command requires arguments. Use \"/help settings\" for more info");
             return true;
         }
 

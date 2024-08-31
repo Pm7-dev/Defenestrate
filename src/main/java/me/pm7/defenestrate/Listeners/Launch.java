@@ -5,7 +5,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
 import org.bukkit.block.data.type.Door;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -19,7 +18,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.util.Vector;
 
 import java.util.Arrays;
@@ -30,14 +28,13 @@ public class Launch implements Listener {
     private final Defenestrate plugin = Defenestrate.getPlugin();
     FileConfiguration config = plugin.getConfig();
 
-    final List<EntityType> unthrowableEntities = Arrays.asList(
+    private final List<EntityType> unthrowableEntities = Arrays.asList(
             EntityType.ITEM,
             EntityType.ITEM_DISPLAY,
             EntityType.ITEM_FRAME,
             EntityType.GLOW_ITEM_FRAME,
             EntityType.AREA_EFFECT_CLOUD,
             EntityType.ARROW,
-            EntityType.BLOCK_DISPLAY,
             EntityType.BREEZE_WIND_CHARGE,
             EntityType.FIREBALL,
             EntityType.FIREWORK_ROCKET,
@@ -56,7 +53,7 @@ public class Launch implements Listener {
             EntityType.EXPERIENCE_BOTTLE,
             EntityType.EXPERIENCE_ORB,
             EntityType.FISHING_BOBBER,
-            EntityType.INTERACTION,
+              EntityType.INTERACTION, //TODO: get this working
             EntityType.LEASH_KNOT,
             EntityType.LIGHTNING_BOLT,
             EntityType.LLAMA_SPIT,
@@ -66,7 +63,7 @@ public class Launch implements Listener {
             EntityType.HOPPER_MINECART
     );
 
-    private static final List<Material> unthrowableBlocks = Arrays.asList(
+    private final List<Material> unthrowableBlocks = Arrays.asList(
             Material.COMMAND_BLOCK,
             Material.CHAIN_COMMAND_BLOCK,
             Material.REPEATING_COMMAND_BLOCK,
@@ -97,7 +94,23 @@ public class Launch implements Listener {
             Material.SPAWNER,
             Material.PISTON_HEAD,
             Material.MOVING_PISTON,
-            Material.REDSTONE_WIRE
+            Material.REDSTONE_WIRE,
+            Material.WHITE_BED,
+            Material.ORANGE_BED,
+            Material.MAGENTA_BED,
+            Material.LIGHT_BLUE_BED,
+            Material.YELLOW_BED,
+            Material.LIME_BED,
+            Material.PINK_BED,
+            Material.GRAY_BED,
+            Material.LIGHT_GRAY_BED,
+            Material.CYAN_BED,
+            Material.PURPLE_BED,
+            Material.BLUE_BED,
+            Material.BROWN_BED,
+            Material.GREEN_BED,
+            Material.RED_BED,
+            Material.BLACK_BED
     );
 
     // Picking up Players and Entities
@@ -130,6 +143,8 @@ public class Launch implements Listener {
 
         Entity passenger = plugin.getPassenger(p);
         if(passenger == null) { p.addPassenger(clicked); }
+
+        e.setCancelled(true);
     }
 
     // Picking up Blocks
@@ -168,10 +183,12 @@ public class Launch implements Listener {
                 return;
             }
 
-            FallingBlock fallingBlock = p.getWorld().spawnFallingBlock(p.getLocation().add(0, 2, 0), b.getBlockData());
+            FallingBlock fallingBlock = p.getWorld().spawnFallingBlock(p.getLocation().add(0, 1.5, 0), b.getBlockData());
             b.setType(Material.AIR);
 
-            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () ->  p.addPassenger(fallingBlock), 1L);
+            p.addPassenger(fallingBlock);
+
+            e.setCancelled(true);
         }
 
 
