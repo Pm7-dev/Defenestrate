@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class settings implements CommandExecutor, TabExecutor {
+public class dsettings implements CommandExecutor, TabExecutor {
     private final Defenestrate plugin = Defenestrate.getPlugin();
     FileConfiguration config = plugin.getConfig();
 
@@ -24,9 +24,10 @@ public class settings implements CommandExecutor, TabExecutor {
             "throwPlayersRequiresPermission",
             "throwEntitiesRequiresPermission",
             "throwBlocksRequiresPermission",
+            "oldBlockHandling",
             "breakThingsMode"
     );
-    final List<String> integerSettings = Arrays.asList(
+    final List<String> floatSettings = Arrays.asList(
             "playerThrowPower",
             "entityThrowPower",
             "blockThrowPower"
@@ -55,7 +56,7 @@ public class settings implements CommandExecutor, TabExecutor {
         }
 
         // Running code for getting the value of a setting
-        if(args[0].toLowerCase().equals("get")) {
+        if(args[0].equalsIgnoreCase("get")) {
 
             // Argument check again
             if(args.length < 2) {
@@ -72,13 +73,13 @@ public class settings implements CommandExecutor, TabExecutor {
 
             if(booleanSettings.contains(setting)) {
                 if(config.getBoolean(setting)) {
-                    p.sendMessage(ChatColor.YELLOW + setting + " is currently set to " + ChatColor.BOLD + ChatColor.GREEN + config.get(setting));
+                    p.sendMessage(ChatColor.YELLOW + setting + " is currently set to " + ChatColor.GREEN + "" + ChatColor.BOLD + config.get(setting));
                 } else {
-                    p.sendMessage(ChatColor.YELLOW + setting + " is currently set to " + ChatColor.BOLD + ChatColor.RED + config.get(setting));
+                    p.sendMessage(ChatColor.YELLOW + setting + " is currently set to " + ChatColor.RED + "" + ChatColor.BOLD + config.get(setting));
                 }
             }
-            else if(integerSettings.contains(setting)) {
-                p.sendMessage(ChatColor.YELLOW + setting + " is currently set to " + ChatColor.BOLD + ChatColor.BLUE + config.get(setting));
+            else if(floatSettings.contains(setting)) {
+                p.sendMessage(ChatColor.YELLOW + setting + " is currently set to " + ChatColor.BLUE + "" + ChatColor.BOLD + config.get(setting));
             }
 
             return true;
@@ -86,7 +87,7 @@ public class settings implements CommandExecutor, TabExecutor {
         }
 
         // Running code for setting the value of a setting
-        if (args[0].toLowerCase().equals("set")) {
+        if (args[0].equalsIgnoreCase("set")) {
             if(args.length < 3) {
                 p.sendMessage(ChatColor.RED + "Please specify both a setting and the value you would like to set it to.");
                 return true;
@@ -110,24 +111,24 @@ public class settings implements CommandExecutor, TabExecutor {
 
                 Boolean newValue = Boolean.valueOf(args[2]);
                 if(newValue) {
-                    p.sendMessage(ChatColor.YELLOW + "Changing " + setting + " to " + ChatColor.BOLD + ChatColor.GREEN + newValue);
+                    p.sendMessage(ChatColor.YELLOW + "Changing " + setting + " to " + ChatColor.GREEN + "" + ChatColor.BOLD + newValue);
                 } else {
-                    p.sendMessage(ChatColor.YELLOW + "Changing " + setting + " to " + ChatColor.BOLD + ChatColor.RED + newValue);
+                    p.sendMessage(ChatColor.YELLOW + "Changing " + setting + " to " + ChatColor.RED + "" + ChatColor.BOLD + newValue);
                 }
                 config.set(setting, newValue);
                 plugin.saveConfig();
 
                 return true;
-            } else if (integerSettings.contains(setting)) {
+            } else if (floatSettings.contains(setting)) {
 
-                // Make sure the response is an integer
-                Integer newValue;
-                try { newValue = Integer.valueOf(args[2]);
+                // Make sure the response is a float
+                float newValue;
+                try { newValue = Float.parseFloat(args[2]);
                 } catch (NumberFormatException e) {
-                    p.sendMessage(ChatColor.RED + "This value must be set to an integer (whole number)");
+                    p.sendMessage(ChatColor.RED + "This value must be set to a float value (number with decimal)");
                     return true;
                 }
-                p.sendMessage(ChatColor.YELLOW + "Changing " + setting + " to " + ChatColor.BOLD + ChatColor.BLUE + newValue);
+                p.sendMessage(ChatColor.YELLOW + "Changing " + setting + " to " + ChatColor.BLUE + "" + ChatColor.BOLD + newValue);
                 config.set(setting, newValue);
                 plugin.saveConfig();
 
@@ -136,19 +137,37 @@ public class settings implements CommandExecutor, TabExecutor {
         }
 
         // Just listing all the values lol
-        if (args[0].toLowerCase().equals("list")) {
+        if (args[0].equalsIgnoreCase("list")) {
+            int i = 0;
+            p.sendMessage(ChatColor.GOLD + "--------------- DEFENESTRATE SETTINGS ---------------");
+            p.sendMessage("");
+            p.sendMessage(ChatColor.GOLD + "Power Settings:");
             for(String key : config.getKeys(false)) {
+
+                if(i==3) {
+                    p.sendMessage("");
+                    p.sendMessage(ChatColor.GOLD + "Feature Settings:");
+                } else if (i==6) {
+                    p.sendMessage("");
+                    p.sendMessage(ChatColor.GOLD + "Permission Settings:");
+                } else if (i==9) {
+                    p.sendMessage("");
+                    p.sendMessage(ChatColor.GOLD + "Other Settings:");
+                }
+
                 if(booleanSettings.contains(key)) {
                     if(config.getBoolean(key)) {
-                        p.sendMessage(ChatColor.YELLOW + key + ": " + ChatColor.BOLD + ChatColor.GREEN + config.get(key));
+                        p.sendMessage(ChatColor.YELLOW + key + ": " + ChatColor.GREEN + "" + ChatColor.BOLD + config.get(key));
                     } else {
-                        p.sendMessage(ChatColor.YELLOW + key + ": " + ChatColor.BOLD + ChatColor.RED + config.get(key));
+                        p.sendMessage(ChatColor.YELLOW + key + ": " + ChatColor.RED + "" + ChatColor.BOLD + config.get(key));
                     }
                 }
-                else if(integerSettings.contains(key)) {
-                    p.sendMessage(ChatColor.YELLOW + key + ": " + ChatColor.BOLD + ChatColor.BLUE + config.get(key));
+                else if(floatSettings.contains(key)) {
+                    p.sendMessage(ChatColor.YELLOW + key + ": " + ChatColor.BLUE + "" + ChatColor.BOLD + config.get(key));
                 }
+                i++;
             }
+            p.sendMessage(ChatColor.GOLD + "-----------------------------------------------------");
 
             return true;
         }
@@ -167,6 +186,7 @@ public class settings implements CommandExecutor, TabExecutor {
             "entityThrowPower",
             "playerThrowEnabled",
             "playerThrowPower",
+            "oldBlockHandling",
             "breakThingsMode"
     );
 
@@ -234,7 +254,7 @@ public class settings implements CommandExecutor, TabExecutor {
 
     String getProperCase(String string) {
         for(String setting : settingsList) {
-            if(setting.toLowerCase().equals(string.toLowerCase())) {
+            if(setting.equalsIgnoreCase(string)) {
                 return setting;
             }
         }

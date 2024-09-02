@@ -1,32 +1,37 @@
 package me.pm7.defenestrate.Listeners;
 
+import me.pm7.defenestrate.BlockEntityManager;
 import me.pm7.defenestrate.Defenestrate;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
+import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
 import org.bukkit.block.data.type.Door;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.FallingBlock;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
+import org.joml.AxisAngle4f;
+import org.joml.Vector3f;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 
 public class Launch implements Listener {
     private final Defenestrate plugin = Defenestrate.getPlugin();
     FileConfiguration config = plugin.getConfig();
+    List<UUID> debounceList = new ArrayList<>(); // debounce for picking up blocks, since it ghost creates a left click event when you are looking at air sometimes
 
     private final List<EntityType> unthrowableEntities = Arrays.asList(
             EntityType.ITEM,
@@ -53,7 +58,6 @@ public class Launch implements Listener {
             EntityType.EXPERIENCE_BOTTLE,
             EntityType.EXPERIENCE_ORB,
             EntityType.FISHING_BOBBER,
-              EntityType.INTERACTION, //TODO: get this working
             EntityType.LEASH_KNOT,
             EntityType.LIGHTNING_BOLT,
             EntityType.LLAMA_SPIT,
@@ -115,7 +119,11 @@ public class Launch implements Listener {
 
     // Picking up Players and Entities
     @EventHandler
-    public void PickUpEntity(PlayerInteractEntityEvent e) {
+    public void interactEntityListener(PlayerInteractEntityEvent e) {
+
+        // This is stupid. Why does it run for each hand
+        if(e.getHand() == EquipmentSlot.OFF_HAND) return;
+
         Player p = e.getPlayer();
 
         // permissions
@@ -136,23 +144,54 @@ public class Launch implements Listener {
         }
 
         // check if the click is valid
-        if(!p.isSneaking() || p.getItemInUse() != null) { return;}
+        if(!p.isSneaking() || !p.getInventory().getItemInMainHand().getType().isAir()) { return;}
 
         Entity clicked = e.getRightClicked();
-        if(unthrowableEntities.contains(e.getRightClicked().getType())) { return; }
+        if(unthrowableEntities.contains(clicked.getType())) { return; }
 
-        Entity passenger = plugin.getPassenger(p);
-        if(passenger == null) { p.addPassenger(clicked); }
+        // Check if the entity is inside spawn protection
+        if(inSpawnProt(clicked.getLocation())) {
+            if(!p.isOp()) {
+                p.sendMessage(ChatColor.RED + "This entity is in spawn protection!");
+                return;
+            }
+        }
+
+        // Check for players stealing blocks off of others' heads
+        if(clicked.getType() == EntityType.INTERACTION) {
+            System.out.println("interaction");
+            if(clicked.isInsideVehicle() && plugin.blocks().contains(clicked.getVehicle().getUniqueId())) {
+                Entity passenger = plugin.getPassenger(p);
+                if (passenger == null) {
+                    System.out.println("adding block to jan ante");
+                    if(clicked.getVehicle().isInsideVehicle()) {
+                        clicked.getVehicle().getVehicle().removePassenger(clicked.getVehicle());
+                    }
+                    p.addPassenger(clicked.getVehicle());
+                }
+            }
+        } else {
+
+            Entity passenger = plugin.getPassenger(p);
+            if (passenger == null) {
+                p.addPassenger(clicked);
+            }
+        }
 
         e.setCancelled(true);
     }
 
-    // Picking up Blocks
     @EventHandler
-    public void PickUpBlock(PlayerInteractEvent e) {
+    public void interactListener(PlayerInteractEvent e) {
 
         // This is stupid. Why does it run for each hand
         if(e.getHand() == EquipmentSlot.OFF_HAND) return;
+
+        // do the debounce which needs to be here for some stupid reason
+        UUID uuid = e.getPlayer().getUniqueId();
+        if(debounceList.contains(uuid)) return;
+        debounceList.add(uuid);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> debounceList.remove(uuid), 3L);
 
         Player p = e.getPlayer();
         Entity passenger = plugin.getPassenger(p);
@@ -161,7 +200,7 @@ public class Launch implements Listener {
         // Picking up Blocks
         if(passenger == null) {
             if(action != Action.RIGHT_CLICK_BLOCK) {return;}
-            if (!p.isSneaking() || p.getItemInUse() != null) { return;}
+            if (!p.isSneaking() || !p.getInventory().getItemInMainHand().getType().isAir()) { return;}
 
             // permissions
             if(!config.getBoolean("blockThrowEnabled")) { return; }
@@ -178,18 +217,53 @@ public class Launch implements Listener {
                 if(b.getState() instanceof Container) { return; }
                 if(b.getBlockData() instanceof Door) { return; }
             }
-            if (b.getDrops().size() > 1) {
-                p.sendMessage(ChatColor.RED + "That Block has items in it!");
-                return;
+
+            // Check if the block is inside spawn protection
+            if(inSpawnProt(b.getLocation())) {
+                if(!p.isOp()) {
+                    p.sendMessage(ChatColor.RED + "This block is in spawn protection!");
+                    return;
+                }
             }
 
-            FallingBlock fallingBlock = p.getWorld().spawnFallingBlock(p.getLocation().add(0, 1.5, 0), b.getBlockData());
+            if(config.getBoolean("oldBlockHandling")) {
+
+                // Using the older falling block method
+                FallingBlock fallingBlock = p.getWorld().spawnFallingBlock(p.getLocation().add(0, 1.5, 0), b.getBlockData());
+                p.addPassenger(fallingBlock);
+
+            } else {
+
+                // New method of making blocks work
+                World world = p.getWorld();
+                Location loc = p.getLocation();
+                loc.setY(500.0d);
+
+                Axolotl base = (Axolotl) world.spawnEntity(loc, EntityType.AXOLOTL);
+                base.setRemoveWhenFarAway(false);
+                base.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, PotionEffect.INFINITE_DURATION, 1, false, false));
+                base.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, PotionEffect.INFINITE_DURATION, 10, false, false));
+                base.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, PotionEffect.INFINITE_DURATION, 10, false, false));
+                base.setSilent(true);
+                base.getAttribute(Attribute.GENERIC_SCALE).setBaseValue(0.01d);
+                plugin.registerBlock(base.getUniqueId());
+
+                Interaction hitbox = (Interaction) world.spawnEntity(loc, EntityType.INTERACTION);
+                base.addPassenger(hitbox);
+
+                BlockDisplay block = (BlockDisplay) world.spawnEntity(loc, EntityType.BLOCK_DISPLAY);
+                block.setTransformation(new Transformation(new Vector3f(-0.5f, 0.0f, -0.5f), new AxisAngle4f(0, 0, 0, 0), new Vector3f(1f, 1f, 1f), new AxisAngle4f(0, 0, 0, 0)));
+                block.setBlock(b.getBlockData());
+                hitbox.addPassenger(block);
+
+                p.addPassenger(base);
+            }
+
             b.setType(Material.AIR);
-
-            p.addPassenger(fallingBlock);
-
             e.setCancelled(true);
         }
+
+
 
 
 
@@ -198,14 +272,45 @@ public class Launch implements Listener {
             p.removePassenger(passenger);
             passenger.teleport(p.getLocation().add(0, 2, 0));
 
-            // Get the direction and power to throw the object at
-            int power;
-            if(passenger instanceof Player) { power = config.getInt("playerThrowPower"); }
-            else if (passenger instanceof FallingBlock) { power = config.getInt("blockThrowPower"); }
-            else { power = config.getInt("entityThrowPower"); }
-            Vector direction = p.getLocation().getDirection();
+            float power;
+            // if it's a Player, get player power
+            if(passenger instanceof Player) {
+                power = (float) config.getDouble("playerThrowPower");
+            }
 
-            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> passenger.setVelocity(direction.multiply(power)), 1L);
+            // if it's a FallingBlock, get block power
+            else if (passenger instanceof FallingBlock) {
+                power = (float) config.getDouble("blockThrowPower");
+            }
+
+            // if it's my custom block, get block power and start the checking loop
+            else if(plugin.blocks().contains(passenger.getUniqueId())) {
+                new BlockEntityManager((Axolotl) passenger); // This creates a new instance of BlockEntityManager, which is the stupid little class I made to run the loop
+                power = (float) config.getDouble("blockThrowPower"); // use block settings
+            }
+
+            // otherwise just use the entity power
+            else {
+                power = (float) config.getDouble("entityThrowPower");
+            }
+
+            Vector direction = p.getLocation().getDirection();
+            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> passenger.setVelocity(direction.multiply(power)), 3L);
         }
+    }
+
+    public boolean inSpawnProt(Location location) {
+        World world = location.getWorld();
+
+        Location spawnLocation = world.getSpawnLocation();
+        int spawnRadius = Bukkit.getServer().getSpawnRadius();
+
+        if (!world.getEnvironment().equals(World.Environment.NORMAL)) { return false; }
+
+        // distnce
+        int distanceX = Math.abs(location.getBlockX() - spawnLocation.getBlockX());
+        int distanceZ = Math.abs(location.getBlockZ() - spawnLocation.getBlockZ());
+
+        return (distanceX <= spawnRadius) && (distanceZ <= spawnRadius);
     }
 }

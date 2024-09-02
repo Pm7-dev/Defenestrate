@@ -1,12 +1,18 @@
 package me.pm7.defenestrate;
 
-import me.pm7.defenestrate.Commands.settings;
+import me.pm7.defenestrate.Commands.dsettings;
 import me.pm7.defenestrate.Listeners.*;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 
 public final class Defenestrate extends JavaPlugin {
 
@@ -16,12 +22,16 @@ public final class Defenestrate extends JavaPlugin {
     public void onEnable() {
         plugin = this;
 
-        getConfig().options().copyDefaults();
+        getConfig().options().copyDefaults(true);
         saveDefaultConfig();
+
+        killRemainingBlocks();
 
         getServer().getPluginManager().registerEvents(new Launch(), this);
         getServer().getPluginManager().registerEvents(new Disconnect(), this);
-        getCommand("settings").setExecutor(new settings());
+        getServer().getPluginManager().registerEvents(new Death(), this);
+        getCommand("dsettings").setExecutor(new dsettings());
+        getCommand("dsettings").setTabCompleter(new dsettings());
     }
 
     public Entity getPassenger(Player p) {
@@ -38,6 +48,35 @@ public final class Defenestrate extends JavaPlugin {
         return null;
     }
 
+    // If there are any custom block entities when the plugin starts, they should be removed.
+    private void killRemainingBlocks() {
+        for (World w : Bukkit.getWorlds()) {
+            for(Entity e : w.getEntities()) {
+                if(!e.getPassengers().isEmpty() && e.getType() == EntityType.AXOLOTL) {
+                    Entity in = e.getPassengers().get(0);
+                    if(in.getType() == EntityType.INTERACTION && !in.getPassengers().isEmpty()) {
+                        Entity bd = in.getPassengers().get(0);
+                        if(bd instanceof BlockDisplay) {
+                            e.getPassengers().get(0).getPassengers().get(0).remove();
+                            e.getPassengers().get(0).remove();
+                            e.remove();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private final HashSet<UUID> blocks = new HashSet<>();
+    public HashSet<UUID> blocks() {
+        return blocks;
+    }
+    public void registerBlock(UUID uuid) {
+        blocks.add(uuid);
+    }
+    public void unregisterBlock(UUID uuid) {
+        blocks.remove(uuid);
+    }
 
     public static Defenestrate getPlugin() {return plugin;}
 }

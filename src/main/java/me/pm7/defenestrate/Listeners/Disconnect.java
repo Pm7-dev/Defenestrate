@@ -1,11 +1,16 @@
 
 package me.pm7.defenestrate.Listeners;
 
+import me.pm7.defenestrate.BlockEntityManager;
 import me.pm7.defenestrate.Defenestrate;
+import org.bukkit.entity.Axolotl;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
+
+import java.util.List;
 
 
 /*
@@ -30,8 +35,13 @@ public class Disconnect implements Listener {
             Player vehicle = (Player) p.getVehicle();
             vehicle.removePassenger(p);
         }
-        if(plugin.getPassenger(p) instanceof Player) {
-            p.removePassenger(plugin.getPassenger(p));
+
+
+        List<Entity> eList = p.getNearbyEntities(1d, 2d, 1d);
+        for(Entity entity : eList) {
+            if(plugin.blocks().contains(entity.getUniqueId())) {
+                new BlockEntityManager((Axolotl) entity);
+            }
         }
     }
 }
