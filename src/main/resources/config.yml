@@ -1,13 +1,13 @@
 
 # I'm not sure why, but for some reason velocity applied to players is different compared to entities and blocks
-playerThrowPower: 2.5
-entityThrowPower: 2.5
-blockThrowPower: 2.5
+playerThrowPower: 1.6
+entityThrowPower: 1.6
+blockThrowPower: 1.6
 
 # Which things should be throwable
 playerThrowEnabled: true
 entityThrowEnabled: true
-blockThrowEnabled: false
+blockThrowEnabled: true
 
 # If they are throwable, should players without permissions be able to throw these?
 throwPlayersRequiresPermission: false

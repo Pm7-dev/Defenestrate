@@ -36,7 +36,6 @@ public class Disconnect implements Listener {
             vehicle.removePassenger(p);
         }
 
-
         List<Entity> eList = p.getNearbyEntities(1d, 2d, 1d);
         for(Entity entity : eList) {
             if(plugin.blocks().contains(entity.getUniqueId())) {

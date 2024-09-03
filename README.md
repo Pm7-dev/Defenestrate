@@ -24,9 +24,9 @@ The `/dSettings` command works as follows:
   <summary> List of settings that can be changed </summary>
 
 Power settings:
-- `playerThrowPower (Default: 2.5)` - The power at which players are thrown
-- `entityThrowPower (Default: 2.5)` - The power at which other entities are thrown
-- `blockThrowPower (Default: 2.5)` - The power at which blocks are thrown
+- `playerThrowPower (Default: 1.6)` - The power at which players are thrown
+- `entityThrowPower (Default: 1.6)` - The power at which other entities are thrown
+- `blockThrowPower (Default: 1.6)` - The power at which blocks are thrown
 
 Feature toggles:
 - `playerThrowEnabled (Default: true)` - If any player will be allowed to throw players
@@ -57,6 +57,10 @@ There is no built-in permissions manager in this plugin. However, if you wish to
 The old block handling method uses Minecraft's "falling block" entity. The issue with this is that falling blocks have a habit of just... randomly breaking. If you pick a block up while crouching and just in general being in the wrong area, the block will just drop. Even more than that, when falling blocks land, there's a stupidly large chance that the block just drops as an item instead of being placed as a block.
 
 My solution to this is to create a ""custom"" block entity using the 1.19.4 Block Displays and Interactions, along with a very shrunk down axolotl to handle the gravity. This means that the block entities are actually 3 entities stacked on top of each other. If your server starts lagging because of players throwing blocks, it may be worth it to use the old block handling. 
+
+## Other Notes
+(just one for now)  
+If the block throw power is set to exactly 1.5, throwing a block directly upwards will cause it to be placed as a block in midair. Powers 1.51 and 1.49 have been tested and work as usual. This is because of a coincidence in timing where the block will have the exact same velocity as an unmoving block when the plugin checks it. Fixing this would require much more processing power than it is worth.
 
 ## Issues and Additional Features
 If you've found an issue with the plugin or have a request for a new feature, head over to the [issues](https://github.com/Pm7-dev/Defenestrate/issues) page and create an issue. Please be sure to include as much detail about the bug/feature request as possible in the issue.

@@ -13,6 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public final class Defenestrate extends JavaPlugin {
 
@@ -27,11 +28,18 @@ public final class Defenestrate extends JavaPlugin {
 
         killRemainingBlocks();
 
-        getServer().getPluginManager().registerEvents(new Launch(), this);
         getServer().getPluginManager().registerEvents(new Disconnect(), this);
+        getServer().getPluginManager().registerEvents(new Launch(), this);
+        getServer().getPluginManager().registerEvents(new Portal(), this);
         getServer().getPluginManager().registerEvents(new Death(), this);
-        getCommand("dsettings").setExecutor(new dsettings());
         getCommand("dsettings").setTabCompleter(new dsettings());
+        getCommand("dsettings").setExecutor(new dsettings());
+
+
+        int spawnProt = Bukkit.getServer().getSpawnRadius();
+        if(spawnProt > 0) {
+            getLogger().log(Level.WARNING, "This server has spawn protection enabled! Defenestrate will not be able to be used by non-operators until they are " + spawnProt + " blocks away from spawn!");
+        }
     }
 
     public Entity getPassenger(Player p) {

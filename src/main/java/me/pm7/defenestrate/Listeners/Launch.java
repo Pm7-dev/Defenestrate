@@ -127,17 +127,17 @@ public class Launch implements Listener {
         Player p = e.getPlayer();
 
         // permissions
-        if(!(e.getRightClicked() instanceof Player)) {
-            if(!config.getBoolean("entityThrowEnabled")) { return; }
-            if(config.getBoolean("throwEntitiesRequiresPermission")) {
-                if(!p.hasPermission("defenestrate.entities") && !p.hasPermission("defenestrate.all")) {
-                    return;
-                }
-            }
-        } else {
+        if(e.getRightClicked() instanceof Player) {
             if(!config.getBoolean("playerThrowEnabled")) { return; }
             if(config.getBoolean("throwPlayersRequiresPermission")) {
                 if(!p.hasPermission("defenestrate.players") && !p.hasPermission("defenestrate.all")) {
+                    return;
+                }
+            }
+        } else if(!(e.getRightClicked() instanceof Interaction)){
+            if(!config.getBoolean("entityThrowEnabled")) { return; }
+            if(config.getBoolean("throwEntitiesRequiresPermission")) {
+                if(!p.hasPermission("defenestrate.entities") && !p.hasPermission("defenestrate.all")) {
                     return;
                 }
             }
@@ -159,11 +159,18 @@ public class Launch implements Listener {
 
         // Check for players stealing blocks off of others' heads
         if(clicked.getType() == EntityType.INTERACTION) {
-            System.out.println("interaction");
+
+            // permissions
+            if(!config.getBoolean("blockThrowEnabled")) { return; }
+            if(config.getBoolean("throwBlocksRequiresPermission")) {
+                if(!p.hasPermission("defenestrate.blocks") && !p.hasPermission("defenestrate.all")) {
+                    return;
+                }
+            }
+
             if(clicked.isInsideVehicle() && plugin.blocks().contains(clicked.getVehicle().getUniqueId())) {
                 Entity passenger = plugin.getPassenger(p);
                 if (passenger == null) {
-                    System.out.println("adding block to jan ante");
                     if(clicked.getVehicle().isInsideVehicle()) {
                         clicked.getVehicle().getVehicle().removePassenger(clicked.getVehicle());
                     }
@@ -249,21 +256,21 @@ public class Launch implements Listener {
                 plugin.registerBlock(base.getUniqueId());
 
                 Interaction hitbox = (Interaction) world.spawnEntity(loc, EntityType.INTERACTION);
+                hitbox.setRotation(0, 0);
                 base.addPassenger(hitbox);
 
                 BlockDisplay block = (BlockDisplay) world.spawnEntity(loc, EntityType.BLOCK_DISPLAY);
+                block.setRotation(0, 0); // paper servers throw a fit when you don't have this (the block is facing the same direction the player is for some reason)
                 block.setTransformation(new Transformation(new Vector3f(-0.5f, 0.0f, -0.5f), new AxisAngle4f(0, 0, 0, 0), new Vector3f(1f, 1f, 1f), new AxisAngle4f(0, 0, 0, 0)));
                 block.setBlock(b.getBlockData());
-                hitbox.addPassenger(block);
 
+                hitbox.addPassenger(block);
                 p.addPassenger(base);
             }
 
             b.setType(Material.AIR);
             e.setCancelled(true);
         }
-
-
 
 
 
