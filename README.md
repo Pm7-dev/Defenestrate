@@ -56,7 +56,7 @@ There is no built-in permissions manager in this plugin. However, if you wish to
 ## Old Block Handling
 The old block handling method uses Minecraft's "falling block" entity. The issue with this is that falling blocks have a habit of just... randomly breaking. If you pick a block up while crouching and just in general being in the wrong area, the block will just drop. Even more than that, when falling blocks land, there's a stupidly large chance that the block just drops as an item instead of being placed as a block.
 
-My solution to this is to create a ""custom"" block entity using the 1.19.4 Block Displays and Interactions, along with a very shrunk down axolotl to handle the gravity. This means that the block entities are actually 3 entities stacked on top of each other. If your server starts lagging because of players throwing blocks, it may be worth it to use the old block handling. 
+My solution to this is to create a ""custom"" block entity using the 1.19.4 Block Displays and Interactions, along with a very shrunk down baby zoglin to handle the gravity. This means that the block entities are actually 3 entities stacked on top of each other. If your server starts lagging because of players throwing blocks, it may be worth it to use the old block handling. 
 
 ## Other Notes
 (just one for now)  

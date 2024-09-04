@@ -3,9 +3,9 @@ package me.pm7.defenestrate.Listeners;
 
 import me.pm7.defenestrate.BlockEntityManager;
 import me.pm7.defenestrate.Defenestrate;
-import org.bukkit.entity.Axolotl;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Zoglin;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -39,7 +39,7 @@ public class Disconnect implements Listener {
         List<Entity> eList = p.getNearbyEntities(1d, 2d, 1d);
         for(Entity entity : eList) {
             if(plugin.blocks().contains(entity.getUniqueId())) {
-                new BlockEntityManager((Axolotl) entity);
+                new BlockEntityManager((Zoglin) entity);
             }
         }
     }

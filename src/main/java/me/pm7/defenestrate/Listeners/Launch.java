@@ -125,6 +125,14 @@ public class Launch implements Listener {
         if(e.getHand() == EquipmentSlot.OFF_HAND) return;
 
         Player p = e.getPlayer();
+        if(p.getGameMode() == GameMode.SPECTATOR) {return;}
+
+        // do the debounce which needs to be here for some stupid reason
+        UUID uuid = p.getUniqueId();
+        if(debounceList.contains(uuid)) return;
+        debounceList.add(uuid);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> debounceList.remove(uuid), 3L);
+
 
         // permissions
         if(e.getRightClicked() instanceof Player) {
@@ -194,13 +202,15 @@ public class Launch implements Listener {
         // This is stupid. Why does it run for each hand
         if(e.getHand() == EquipmentSlot.OFF_HAND) return;
 
+        Player p = e.getPlayer();
+        if(p.getGameMode() == GameMode.SPECTATOR) {return;}
+
         // do the debounce which needs to be here for some stupid reason
-        UUID uuid = e.getPlayer().getUniqueId();
+        UUID uuid = p.getUniqueId();
         if(debounceList.contains(uuid)) return;
         debounceList.add(uuid);
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> debounceList.remove(uuid), 3L);
 
-        Player p = e.getPlayer();
         Entity passenger = plugin.getPassenger(p);
         Action action = e.getAction();
 
@@ -246,7 +256,8 @@ public class Launch implements Listener {
                 Location loc = p.getLocation();
                 loc.setY(500.0d);
 
-                Axolotl base = (Axolotl) world.spawnEntity(loc, EntityType.AXOLOTL);
+                Zoglin base = (Zoglin) world.spawnEntity(loc, EntityType.ZOGLIN);
+                base.setBaby();
                 base.setRemoveWhenFarAway(false);
                 base.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, PotionEffect.INFINITE_DURATION, 1, false, false));
                 base.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, PotionEffect.INFINITE_DURATION, 10, false, false));
@@ -260,8 +271,9 @@ public class Launch implements Listener {
                 base.addPassenger(hitbox);
 
                 BlockDisplay block = (BlockDisplay) world.spawnEntity(loc, EntityType.BLOCK_DISPLAY);
-                block.setRotation(0, 0); // paper servers throw a fit when you don't have this (the block is facing the same direction the player is for some reason)
-                block.setTransformation(new Transformation(new Vector3f(-0.5f, 0.0f, -0.5f), new AxisAngle4f(0, 0, 0, 0), new Vector3f(1f, 1f, 1f), new AxisAngle4f(0, 0, 0, 0)));
+                block.setRotation(0, 0); // paper servers throw a fit when you don't have this (the block starts facing the same direction the player is for some reason)
+                // TODO: check if this height is till good
+                block.setTransformation(new Transformation(new Vector3f(-0.5f, -0.04375f, -0.5f), new AxisAngle4f(0, 0, 0, 0), new Vector3f(1f, 1f, 1f), new AxisAngle4f(0, 0, 0, 0)));
                 block.setBlock(b.getBlockData());
 
                 hitbox.addPassenger(block);
@@ -292,7 +304,7 @@ public class Launch implements Listener {
 
             // if it's my custom block, get block power and start the checking loop
             else if(plugin.blocks().contains(passenger.getUniqueId())) {
-                new BlockEntityManager((Axolotl) passenger); // This creates a new instance of BlockEntityManager, which is the stupid little class I made to run the loop
+                new BlockEntityManager((Zoglin) passenger); // This creates a new instance of BlockEntityManager, which is the stupid little class I made to run the loop
                 power = (float) config.getDouble("blockThrowPower"); // use block settings
             }
 

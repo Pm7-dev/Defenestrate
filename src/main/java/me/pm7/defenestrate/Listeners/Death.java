@@ -15,10 +15,9 @@ public class Death implements Listener {
         Player p = e.getEntity();
         if(!p.getPassengers().isEmpty()) {
             Entity passenger = p.getPassengers().get(0);
-            System.out.println(passenger);
             if(plugin.blocks().contains(passenger.getUniqueId())) {
                 p.removePassenger(passenger);
-                new BlockEntityManager((Axolotl) passenger);
+                new BlockEntityManager((Zoglin) passenger);
             }
         }
     }

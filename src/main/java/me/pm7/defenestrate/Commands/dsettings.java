@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class dsettings implements CommandExecutor, TabExecutor {
     private final Defenestrate plugin = Defenestrate.getPlugin();
@@ -35,6 +36,14 @@ public class dsettings implements CommandExecutor, TabExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        /*
+        if(Objects.equals(args[0], "a")) {
+            System.out.println(((Player) sender).getVelocity());
+            return true;
+        }
+
+         */
 
         // Make sure it is a player that is running the command
         if(!(sender instanceof Player)) {

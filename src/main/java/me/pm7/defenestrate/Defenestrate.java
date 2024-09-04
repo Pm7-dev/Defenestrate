@@ -28,6 +28,7 @@ public final class Defenestrate extends JavaPlugin {
 
         killRemainingBlocks();
 
+        getServer().getPluginManager().registerEvents(new PreventZoglinInteraction(), this);
         getServer().getPluginManager().registerEvents(new Disconnect(), this);
         getServer().getPluginManager().registerEvents(new Launch(), this);
         getServer().getPluginManager().registerEvents(new Portal(), this);
@@ -60,7 +61,7 @@ public final class Defenestrate extends JavaPlugin {
     private void killRemainingBlocks() {
         for (World w : Bukkit.getWorlds()) {
             for(Entity e : w.getEntities()) {
-                if(!e.getPassengers().isEmpty() && e.getType() == EntityType.AXOLOTL) {
+                if(!e.getPassengers().isEmpty() && e.getType() == EntityType.ZOGLIN) {
                     Entity in = e.getPassengers().get(0);
                     if(in.getType() == EntityType.INTERACTION && !in.getPassengers().isEmpty()) {
                         Entity bd = in.getPassengers().get(0);
