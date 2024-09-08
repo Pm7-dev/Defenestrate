@@ -6,14 +6,14 @@
 
     <groupId>me.pm7</groupId>
     <artifactId>Defenestrate</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
     <packaging>jar</packaging>
 
     <name>Defenestrate</name>
 
     <description>Throw players, blocks, and entities!</description>
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 

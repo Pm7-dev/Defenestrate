@@ -52,7 +52,7 @@ public final class Defenestrate extends JavaPlugin {
                     passengers = p.getPassengers();
                 }
             }
-            if(!passengers.isEmpty()) {return passengers.get(0);}
+            if(!passengers.isEmpty()) {return passengers.getFirst();}
         }
         return null;
     }
@@ -62,12 +62,12 @@ public final class Defenestrate extends JavaPlugin {
         for (World w : Bukkit.getWorlds()) {
             for(Entity e : w.getEntities()) {
                 if(!e.getPassengers().isEmpty() && e.getType() == EntityType.ZOGLIN) {
-                    Entity in = e.getPassengers().get(0);
+                    Entity in = e.getPassengers().getFirst();
                     if(in.getType() == EntityType.INTERACTION && !in.getPassengers().isEmpty()) {
-                        Entity bd = in.getPassengers().get(0);
+                        Entity bd = in.getPassengers().getFirst();
                         if(bd instanceof BlockDisplay) {
-                            e.getPassengers().get(0).getPassengers().get(0).remove();
-                            e.getPassengers().get(0).remove();
+                            e.getPassengers().getFirst().getPassengers().getFirst().remove();
+                            e.getPassengers().getFirst().remove();
                             e.remove();
                         }
                     }

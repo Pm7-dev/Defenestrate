@@ -19,8 +19,7 @@ public class Portal implements Listener {
 
     @EventHandler
     public void onPortal(EntityPortalEnterEvent e) {
-        if(e.getEntity() instanceof Player) {
-            Player p = (Player) e.getEntity();
+        if(e.getEntity() instanceof Player p) {
 
             List<Entity> eList = p.getNearbyEntities(1d, 2d, 1d);
             for (Entity entity : eList) {

@@ -54,9 +54,9 @@ public class BlockEntityManager {
                     plugin.unregisterBlock(zoglin.getUniqueId());
 
                     if(!zoglin.getPassengers().isEmpty()) {
-                        Interaction in = (Interaction) zoglin.getPassengers().get(0);
+                        Interaction in = (Interaction) zoglin.getPassengers().getFirst();
                         if(!in.getPassengers().isEmpty()) {
-                            BlockDisplay bd = (BlockDisplay) in.getPassengers().get(0);
+                            BlockDisplay bd = (BlockDisplay) in.getPassengers().getFirst();
                             bd.remove();
                         }
                         in.remove();
@@ -74,7 +74,7 @@ public class BlockEntityManager {
                     cancelTask();
                     return;
                 }
-                Interaction in = (Interaction) zoglin.getPassengers().get(0);
+                Interaction in = (Interaction) zoglin.getPassengers().getFirst();
                 if(in.getPassengers().isEmpty()) {
                     plugin.unregisterBlock(zoglin.getUniqueId());
 
@@ -83,7 +83,7 @@ public class BlockEntityManager {
                     cancelTask();
                     return;
                 }
-                BlockDisplay bd = (BlockDisplay) in.getPassengers().get(0);
+                BlockDisplay bd = (BlockDisplay) in.getPassengers().getFirst();
 
 
                 // If the entity has the same momentum as a still entity in its environment, it's time to drop the block
@@ -129,7 +129,7 @@ public class BlockEntityManager {
                 return;
             }
 
-            Interaction in = (Interaction) zoglin.getPassengers().get(0);
+            Interaction in = (Interaction) zoglin.getPassengers().getFirst();
             if(in.getPassengers().isEmpty()) {
                 plugin.unregisterBlock(zoglin.getUniqueId());
                 in.remove();
@@ -137,7 +137,7 @@ public class BlockEntityManager {
                 cancelTask();
                 return;
             }
-            BlockDisplay bd = (BlockDisplay) in.getPassengers().get(0);
+            BlockDisplay bd = (BlockDisplay) in.getPassengers().getFirst();
 
             Location loc = zoglin.getLocation();
             loc.getWorld().dropItemNaturally(loc.getBlock().getLocation().add(0.5, 0.5, 0.5), new ItemStack(bd.getBlock().getMaterial()));
@@ -181,6 +181,10 @@ public class BlockEntityManager {
 
     void dropBlock(Location loc, Zoglin zoglin, Interaction in, BlockDisplay bd) {
         Block block = zoglin.getLocation().getBlock();
+
+        float pitch = (float) (0.75 + (Math.random() * (1.25 - 0.75)));
+        block.getWorld().playSound(block.getLocation(), bd.getBlock().getSoundGroup().getPlaceSound(), 1, pitch);
+
         if(block.getType().isAir() || Tag.REPLACEABLE.isTagged(block.getType()) || !block.getType().isSolid()) {
 
             // If it is in spawn protection, drop the block item

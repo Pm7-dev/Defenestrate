@@ -31,8 +31,7 @@ public class Disconnect implements Listener {
     @EventHandler
     public void OnPlayerLeave (PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        if(p.getVehicle() instanceof Player) {
-            Player vehicle = (Player) p.getVehicle();
+        if(p.getVehicle() instanceof Player vehicle) {
             vehicle.removePassenger(p);
         }
 

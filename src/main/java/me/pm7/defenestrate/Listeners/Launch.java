@@ -12,6 +12,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -272,13 +273,16 @@ public class Launch implements Listener {
 
                 BlockDisplay block = (BlockDisplay) world.spawnEntity(loc, EntityType.BLOCK_DISPLAY);
                 block.setRotation(0, 0); // paper servers throw a fit when you don't have this (the block starts facing the same direction the player is for some reason)
-                // TODO: check if this height is till good
                 block.setTransformation(new Transformation(new Vector3f(-0.5f, -0.04375f, -0.5f), new AxisAngle4f(0, 0, 0, 0), new Vector3f(1f, 1f, 1f), new AxisAngle4f(0, 0, 0, 0)));
                 block.setBlock(b.getBlockData());
 
                 hitbox.addPassenger(block);
                 p.addPassenger(base);
             }
+
+            float pitch = (float) (0.75 + (Math.random() * (1.25 - 0.75)));
+            p.playSound(p, b.getBlockData().getSoundGroup().getBreakSound(), 5, pitch);
+
 
             b.setType(Material.AIR);
             e.setCancelled(true);
@@ -288,33 +292,17 @@ public class Launch implements Listener {
 
         // Throwing
         else if(action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK){
-            p.removePassenger(passenger);
-            passenger.teleport(p.getLocation().add(0, 2, 0));
+            Throw(p, passenger);
+        }
+    }
 
-            float power;
-            // if it's a Player, get player power
-            if(passenger instanceof Player) {
-                power = (float) config.getDouble("playerThrowPower");
+    @EventHandler
+    public void onAttack(EntityDamageByEntityEvent e) {
+        if(e.getDamager() instanceof Player p) {
+            Entity passenger = plugin.getPassenger(p);
+            if(passenger != null && e.getEntity() == passenger) {
+                Throw(p, passenger);
             }
-
-            // if it's a FallingBlock, get block power
-            else if (passenger instanceof FallingBlock) {
-                power = (float) config.getDouble("blockThrowPower");
-            }
-
-            // if it's my custom block, get block power and start the checking loop
-            else if(plugin.blocks().contains(passenger.getUniqueId())) {
-                new BlockEntityManager((Zoglin) passenger); // This creates a new instance of BlockEntityManager, which is the stupid little class I made to run the loop
-                power = (float) config.getDouble("blockThrowPower"); // use block settings
-            }
-
-            // otherwise just use the entity power
-            else {
-                power = (float) config.getDouble("entityThrowPower");
-            }
-
-            Vector direction = p.getLocation().getDirection();
-            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> passenger.setVelocity(direction.multiply(power)), 3L);
         }
     }
 
@@ -331,5 +319,36 @@ public class Launch implements Listener {
         int distanceZ = Math.abs(location.getBlockZ() - spawnLocation.getBlockZ());
 
         return (distanceX <= spawnRadius) && (distanceZ <= spawnRadius);
+    }
+
+    public void Throw(Player p, Entity passenger) {
+
+        p.removePassenger(passenger);
+        passenger.teleport(p.getLocation().add(0, 2, 0));
+
+        float power;
+        // if it's a Player, get player power
+        if(passenger instanceof Player) {
+            power = (float) config.getDouble("playerThrowPower");
+        }
+
+        // if it's a FallingBlock, get block power
+        else if (passenger instanceof FallingBlock) {
+            power = (float) config.getDouble("blockThrowPower");
+        }
+
+        // if it's my custom block, get block power and start the checking loop
+        else if(plugin.blocks().contains(passenger.getUniqueId())) {
+            new BlockEntityManager((Zoglin) passenger); // This creates a new instance of BlockEntityManager, which is the stupid little class I made to run the loop
+            power = (float) config.getDouble("blockThrowPower"); // use block settings
+        }
+
+        // otherwise just use the entity power
+        else {
+            power = (float) config.getDouble("entityThrowPower");
+        }
+
+        Vector direction = p.getLocation().getDirection();
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> passenger.setVelocity(direction.multiply(power)), 3L);
     }
 }

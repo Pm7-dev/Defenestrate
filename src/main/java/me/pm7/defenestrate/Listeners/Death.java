@@ -14,7 +14,7 @@ public class Death implements Listener {
     public void onPlayerDamage(PlayerDeathEvent e) {
         Player p = e.getEntity();
         if(!p.getPassengers().isEmpty()) {
-            Entity passenger = p.getPassengers().get(0);
+            Entity passenger = p.getPassengers().getFirst();
             if(plugin.blocks().contains(passenger.getUniqueId())) {
                 p.removePassenger(passenger);
                 new BlockEntityManager((Zoglin) passenger);
