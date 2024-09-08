@@ -9,9 +9,8 @@ This is a spigot plugin designed to give players the ability to pick up and thro
 Simply crouch and right click with no item in your main hand to pick a Player, Entity, or Block up. After that, look in the direction you want to launch, and left click to throw!  
 Note: This will not work if the block/entity you are trying to pick up/throw is in the spawn protection set in `server.properties` and your player is not an operator
 
-Don't believe me? Watch the stridsfordon-style demonstration video here!
-<iframe width="1264" height="711" src="https://www.youtube.com/embed/ImCKaETUTEg" title="Demonstrating the Defenestrating" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-
+Don't believe me? Watch the Stridsfordon-style demonstration video here!
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/ImCKaETUTEg/0.jpg)](https://www.youtube.com/watch?v=ImCKaETUTEg)
 
 ## Installation and Setup
 To install, simply add the [latest release](https://github.com/Pm7-dev/Defenestrate/releases) to the `Plugins` folder in any spigot fork server and run `/reload`
