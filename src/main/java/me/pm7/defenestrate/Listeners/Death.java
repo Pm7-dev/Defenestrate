@@ -1,6 +1,6 @@
 package me.pm7.defenestrate.Listeners;
 
-import me.pm7.defenestrate.BlockEntityManager;
+import me.pm7.defenestrate.utils.BlockEntityManager;
 import me.pm7.defenestrate.Defenestrate;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;

@@ -1,7 +1,9 @@
 package me.pm7.defenestrate;
 
+import me.pm7.defenestrate.Commands.SettingsManager;
 import me.pm7.defenestrate.Commands.dsettings;
 import me.pm7.defenestrate.Listeners.*;
+import me.pm7.defenestrate.utils.UpdateCheck;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.BlockDisplay;
@@ -21,7 +23,17 @@ public final class Defenestrate extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        getLogger().info("Defenestrate version " + this.getDescription().getVersion() + " has been loaded!");
         plugin = this;
+
+        new UpdateCheck(this, 119373).getVersion(version -> {
+            if (!this.getDescription().getVersion().equals(version)) {
+                getLogger().warning("There is a new Defenestrate update available!");
+                getLogger().warning("");
+                getLogger().warning("The latest version is " + version);
+                getLogger().warning("It is recommended that you look at the changelog for the latest version, as it may have some important changes/bug fixes");
+            }
+        });
 
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
@@ -36,6 +48,7 @@ public final class Defenestrate extends JavaPlugin {
         getCommand("dsettings").setTabCompleter(new dsettings());
         getCommand("dsettings").setExecutor(new dsettings());
 
+        SettingsManager.setup();
 
         int spawnProt = Bukkit.getServer().getSpawnRadius();
         if(spawnProt > 0) {

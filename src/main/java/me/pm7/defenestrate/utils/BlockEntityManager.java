@@ -1,5 +1,6 @@
-package me.pm7.defenestrate;
+package me.pm7.defenestrate.utils;
 
+import me.pm7.defenestrate.Defenestrate;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -17,6 +18,7 @@ import java.util.List;
 
 
 public class BlockEntityManager {
+
     private static final Defenestrate plugin = Defenestrate.getPlugin();
 
     private static final List<Material> waterlogged = Arrays.asList(

@@ -7,7 +7,7 @@ description: "Throw blocks, entities, and your friends!"
 commands:
   dsettings:
     description: "Manages the data for the Defenestrate Plugin"
-    usage: "/<command> [get|set|list] [setting] [newValue]"
+    usage: "/dsettings [get | set] [setting] [newValue] - Displays specified setting/sets it to the new value\n/dsettings list - Lists the all of the settings\n/dsettings blacklist [add/remove block/entity] [name] - Adds/removes a block/entity to/from the blacklist\n/dsettings blacklist [listBlock | listEntity] - Lists the current blocked entities/blocks"
 permissions:
   defenestrate.blocks:
     description: "Permission needed for non-ops to pick up and throw blocks if throwBlocksRequiresPermission is true"
@@ -18,7 +18,7 @@ permissions:
   defenestrate.settings:
     description: "Permission needed for non-ops to change the settings of the plugin via commands"
   defenestrate.all:
-    description: "Grants every permission"
+    description: "Grants every permission (Note: every permission will have to be removed manually)"
     children:
       defenestrate.blocks: true
       defenestrate.players: true

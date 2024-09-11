@@ -17,10 +17,12 @@ To install, simply add the [latest release](https://github.com/Pm7-dev/Defenestr
 
 Settings can be either changed in the plugin config file, or by using the in-game `/dSettings` command.  
 The `/dSettings` command works as follows:
-`/dSettings <get|set|list> <setting> <value>`  
 `/dSettings list` - Lists all settings and their respective values  
 `/dSettings get <setting>` - Returns the value of the specified setting  
 `/dSettings set <setting> <value>` - Sets the value of the specified setting to the specified value
+`/dsettings blacklist <addBlock/removeBlock> <block>` - Adds or removes a block from the blacklist
+`/dsettings blacklist <addEntity/removeEntity> <block>` - Adds or removes a block from the blacklist
+`/dsettings blacklist <listBlock/listEntity>` - Returns a list of the blacklist for the specified category
 
 
 <details>

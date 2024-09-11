@@ -2,57 +2,32 @@ package me.pm7.defenestrate.Commands;
 
 import me.pm7.defenestrate.Defenestrate;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
-import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class dsettings implements CommandExecutor, TabExecutor {
+public class dsettings extends SettingsManager implements CommandExecutor, TabExecutor {
     private final Defenestrate plugin = Defenestrate.getPlugin();
-    FileConfiguration config = plugin.getConfig();
-
-    final List<String> booleanSettings = Arrays.asList(
-            "playerThrowEnabled",
-            "entityThrowEnabled",
-            "blockThrowEnabled",
-            "throwPlayersRequiresPermission",
-            "throwEntitiesRequiresPermission",
-            "throwBlocksRequiresPermission",
-            "oldBlockHandling",
-            "breakThingsMode"
-    );
-    final List<String> floatSettings = Arrays.asList(
-            "playerThrowPower",
-            "entityThrowPower",
-            "blockThrowPower"
-    );
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        /*
-        if(Objects.equals(args[0], "a")) {
-            System.out.println(((Player) sender).getVelocity());
-            return true;
-        }
-
-         */
-
         // Make sure it is a player that is running the command
-        if(!(sender instanceof Player)) {
+        if(!(sender instanceof Player p)) {
             sender.sendMessage(ChatColor.RED + "This command can not be used from the console.");
             return true;
         }
 
         // Check for permissions
-        Player p = (Player) sender;
         if(!p.hasPermission("defenestrate.settings") && !p.hasPermission("defenestrate.all")) {
             p.sendMessage(ChatColor.RED + "Insufficient permissions.");
             return true;
@@ -64,7 +39,7 @@ public class dsettings implements CommandExecutor, TabExecutor {
             return true;
         }
 
-        // Running code for getting the value of a setting
+        // Getting the value of a setting
         if(args[0].equalsIgnoreCase("get")) {
 
             // Argument check again
@@ -80,14 +55,14 @@ public class dsettings implements CommandExecutor, TabExecutor {
                 return true;
             }
 
-            if(booleanSettings.contains(setting)) {
+            if(booleanSettings().contains(setting)) {
                 if(config.getBoolean(setting)) {
                     p.sendMessage(ChatColor.YELLOW + setting + " is currently set to " + ChatColor.GREEN + "" + ChatColor.BOLD + config.get(setting));
                 } else {
                     p.sendMessage(ChatColor.YELLOW + setting + " is currently set to " + ChatColor.RED + "" + ChatColor.BOLD + config.get(setting));
                 }
             }
-            else if(floatSettings.contains(setting)) {
+            else if(floatSettings().contains(setting)) {
                 p.sendMessage(ChatColor.YELLOW + setting + " is currently set to " + ChatColor.BLUE + "" + ChatColor.BOLD + config.get(setting));
             }
 
@@ -95,7 +70,7 @@ public class dsettings implements CommandExecutor, TabExecutor {
 
         }
 
-        // Running code for setting the value of a setting
+        // Setting the value of a setting
         if (args[0].equalsIgnoreCase("set")) {
             if(args.length < 3) {
                 p.sendMessage(ChatColor.RED + "Please specify both a setting and the value you would like to set it to.");
@@ -110,7 +85,7 @@ public class dsettings implements CommandExecutor, TabExecutor {
             }
 
             // Figure out what kind of data we are dealing with
-            if(booleanSettings.contains(setting)) {
+            if(booleanSettings().contains(setting)) {
 
                 // Make sure the response is a boolean
                 if(!args[2].equalsIgnoreCase("false") && !args[2].equalsIgnoreCase("true")) {
@@ -128,7 +103,7 @@ public class dsettings implements CommandExecutor, TabExecutor {
                 plugin.saveConfig();
 
                 return true;
-            } else if (floatSettings.contains(setting)) {
+            } else if (floatSettings().contains(setting)) {
 
                 // Make sure the response is a float
                 float newValue;
@@ -145,7 +120,7 @@ public class dsettings implements CommandExecutor, TabExecutor {
             }
         }
 
-        // Just listing all the values lol
+        // Listing all the settings
         if (args[0].equalsIgnoreCase("list")) {
             int i = 0;
             p.sendMessage(ChatColor.GOLD + "--------------- DEFENESTRATE SETTINGS ---------------");
@@ -164,109 +139,157 @@ public class dsettings implements CommandExecutor, TabExecutor {
                     p.sendMessage(ChatColor.GOLD + "Other Settings:");
                 }
 
-                if(booleanSettings.contains(key)) {
+                if(booleanSettings().contains(key)) {
                     if(config.getBoolean(key)) {
                         p.sendMessage(ChatColor.YELLOW + key + ": " + ChatColor.GREEN + "" + ChatColor.BOLD + config.get(key));
                     } else {
                         p.sendMessage(ChatColor.YELLOW + key + ": " + ChatColor.RED + "" + ChatColor.BOLD + config.get(key));
                     }
                 }
-                else if(floatSettings.contains(key)) {
+                else if(floatSettings().contains(key)) {
                     p.sendMessage(ChatColor.YELLOW + key + ": " + ChatColor.BLUE + "" + ChatColor.BOLD + config.get(key));
                 }
                 i++;
             }
+            p.sendMessage("");
+            p.sendMessage(ChatColor.YELLOW + "Note: entity/block blacklists are not listed for chat flood reasons. Please use \"/dsettings blacklist [listBlocks|listEntities]\" if you want to view those.");
             p.sendMessage(ChatColor.GOLD + "-----------------------------------------------------");
 
             return true;
         }
 
-        p.sendMessage(ChatColor.RED + "The first argument must be either \"get\", \"set\", or \"list\"");
+        // Block/Entity blacklist management
+        if(args[0].equalsIgnoreCase("blacklist")) {
+            switch (args[1].toLowerCase()) {
+                case "addblock" -> {
+                    Material mat;
+                    try { mat = Material.valueOf(args[2].toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        p.sendMessage(ChatColor.RED + "This value must be set to the name of a material");
+                        return true;
+                    }
+
+                    if(allowedBlocks().contains(mat.toString())) {
+                        blockBlock(mat);
+                        p.sendMessage(ChatColor.GREEN + "Success!");
+                    } else {
+                        p.sendMessage(ChatColor.RED + "This block is already blocked!");
+                    }
+                }
+                case "addentity" -> {
+                    EntityType et;
+                    try { et = EntityType.valueOf(args[2].toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        p.sendMessage(ChatColor.RED + "This value must be set to a type of entity");
+                        return true;
+                    }
+
+                    if(allowedEntities().contains(et.toString())) {
+                        blockEntity(et);
+                        p.sendMessage(ChatColor.GREEN + "Success!");
+                    } else {
+                        p.sendMessage(ChatColor.RED + "This entity is already blocked!");
+                    }
+                }
+                case "removeblock" -> {
+                    Material mat;
+                    try { mat = Material.valueOf(args[2].toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        p.sendMessage(ChatColor.RED + "This value must be set to the name of a block");
+                        return true;
+                    }
+
+                    if(blockedBlocks().contains(mat.toString())) {
+                        unblockBlock(mat);
+                        p.sendMessage(ChatColor.GREEN + "Success!");
+                    } else {
+                        p.sendMessage(ChatColor.RED + "This block isn't blocked!");
+                    }
+                }
+                case "removeentity" -> {
+                    EntityType et;
+                    try { et = EntityType.valueOf(args[2].toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        p.sendMessage(ChatColor.RED + "This value must be set to a type of entity");
+                        return true;
+                    }
+
+                    if(blockedEntities().contains(et.toString())) {
+                        unblockEntity(et);
+                        p.sendMessage(ChatColor.GREEN + "Success!");
+                    } else {
+                        p.sendMessage(ChatColor.RED + "This entity isn't blocked!");
+                    }
+                }
+                case "listblock" -> {
+                    p.sendMessage(ChatColor.GOLD + "List of every block on the blacklist:");
+                    p.sendMessage(ChatColor.YELLOW + blockedBlocks().toString());
+                }
+                case "listentity" -> {
+                    p.sendMessage(ChatColor.GOLD + "List of every entity on the blacklist:");
+                    p.sendMessage(ChatColor.YELLOW + blockedEntities().toString());
+                }
+                default -> p.sendMessage(ChatColor.RED + "Invalid blacklist argument");
+            }
+            return true;
+        }
+
         return true;
     }
 
-    final List<String> settingsList = Arrays.asList(
-            "throwBlocksRequiresPermission",
-            "throwEntitiesRequiresPermission",
-            "throwPlayersRequiresPermission",
-            "blockThrowEnabled",
-            "blockThrowPower",
-            "entityThrowEnabled",
-            "entityThrowPower",
-            "playerThrowEnabled",
-            "playerThrowPower",
-            "oldBlockHandling",
-            "breakThingsMode"
-    );
-
-    // The worst method for tab autocomplete you will ever see :3
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        if(args.length == 1) {
-            String arg = args[0].toLowerCase();
-
-            if(arg.isEmpty()) {
-                return Arrays.asList(
-                    "get",
-                    "set",
-                    "list"
-                );
+        switch (args.length) {
+            case 1: {
+                return getTabComplete(settingsOptions(), args[0]);
             }
-
-            // This is so stupid lol
-            List<String> availableArgs = new ArrayList<>();
-            if("get".startsWith(arg)) {availableArgs.add("get");}
-            if("set".startsWith(arg)) {availableArgs.add("set");}
-            if("list".startsWith(arg)) {availableArgs.add("list");}
-            if(!"get".startsWith(arg) && "get".contains(arg)) {availableArgs.add("get");}
-            if(!"set".startsWith(arg) && "set".contains(arg)) {availableArgs.add("set");}
-            if(!"list".startsWith(arg) && "list".contains(arg)) {availableArgs.add("list");}
-            return availableArgs;
-
-        } else if(args.length == 2 && !args[0].equals("list")) {
-            String arg = args[1].toLowerCase();
-            if(arg.isEmpty()) { return settingsList; }
-
-            List<String> availableArgs = new ArrayList<>();
-            List<String> argsThatStartWithTerm = new ArrayList<>();
-            List<String> argsThatContainTerm = new ArrayList<>();
-            for(String setting : settingsList) {
-                if(setting.toLowerCase().startsWith(arg)) { argsThatStartWithTerm.add(setting); }
-                else if(setting.toLowerCase().contains(arg)) { argsThatContainTerm.add(setting); }
+            case 2: {
+                String arg = args[0].toLowerCase();
+                if(arg.equals("get") || arg.equals("set")) { return getTabComplete(settingsList(), args[1]); }
+                if(arg.equals("blacklist")) { return getTabComplete(blacklistOptions(), args[1]); }
             }
-
-            availableArgs.addAll(argsThatStartWithTerm);
-            availableArgs.addAll(argsThatContainTerm);
-            return availableArgs;
-        } else if (args.length == 3) {
-            if(args[0].equalsIgnoreCase("set") && booleanSettings.contains(args[1])) {
-                if(args[2].isEmpty()) {
-                    return Arrays.asList(
-                        "false",
-                        "true"
-                    );
+            case 3: {
+                String arg = args[0].toLowerCase();
+                if(arg.equals("set") && booleanSettings().contains(args[1])) {
+                    return getTabComplete(boolOptions(), args[2]);
                 }
-
-                String arg = args[2].toLowerCase();
-
-                // This is so stupid lol
-                List<String> availableArgs = new ArrayList<>();
-                if("false".startsWith(arg)) {availableArgs.add("false");}
-                if("true".startsWith(arg)) {availableArgs.add("true");}
-                if(!"false".startsWith(arg) && "false".contains(arg)) {availableArgs.add("false");}
-                if(!"true".startsWith(arg) && "true".contains(arg)) {availableArgs.add("true");}
-                return availableArgs;
+                if(arg.equals("blacklist")) {
+                    arg = args[1].toLowerCase();
+                    switch (arg) {
+                        case "addblock" -> { return getTabComplete(allowedBlocks(), args[2]); }
+                        case "removeblock" -> { return getTabComplete(blockedBlocks(), args[2]); }
+                        case "addentity" -> { return getTabComplete(allowedEntities(), args[2]); }
+                        case "removeentity" -> { return getTabComplete(blockedEntities(), args[2]); }
+                    }
+                }
             }
         }
         return new ArrayList<>();
     }
 
     String getProperCase(String string) {
-        for(String setting : settingsList) {
+        for(String setting : settingsList()) {
             if(setting.equalsIgnoreCase(string)) {
                 return setting;
             }
         }
         return "error";
+    }
+
+    List<String> getTabComplete(List<String> list, String arg) {
+        arg = arg.toLowerCase();
+        if(arg.isEmpty()) { return list; }
+
+        List<String> availableArgs = new ArrayList<>();
+        List<String> argsThatStartWithTerm = new ArrayList<>();
+        List<String> argsThatContainTerm = new ArrayList<>();
+        for(String setting : list) {
+            if(setting.toLowerCase().startsWith(arg)) { argsThatStartWithTerm.add(setting); }
+            else if(setting.toLowerCase().contains(arg)) { argsThatContainTerm.add(setting); }
+        }
+
+        availableArgs.addAll(argsThatStartWithTerm);
+        availableArgs.addAll(argsThatContainTerm);
+        return availableArgs;
     }
 }

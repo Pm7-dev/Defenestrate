@@ -1,6 +1,6 @@
 package me.pm7.defenestrate.Listeners;
 
-import me.pm7.defenestrate.BlockEntityManager;
+import me.pm7.defenestrate.utils.BlockEntityManager;
 import me.pm7.defenestrate.Defenestrate;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -24,7 +24,6 @@ import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,90 +32,6 @@ public class Launch implements Listener {
     private final Defenestrate plugin = Defenestrate.getPlugin();
     FileConfiguration config = plugin.getConfig();
     List<UUID> debounceList = new ArrayList<>(); // debounce for picking up blocks, since it ghost creates a left click event when you are looking at air sometimes
-
-    private final List<EntityType> unthrowableEntities = Arrays.asList(
-            EntityType.ITEM,
-            EntityType.ITEM_DISPLAY,
-            EntityType.ITEM_FRAME,
-            EntityType.GLOW_ITEM_FRAME,
-            EntityType.AREA_EFFECT_CLOUD,
-            EntityType.ARROW,
-            EntityType.BREEZE_WIND_CHARGE,
-            EntityType.FIREBALL,
-            EntityType.FIREWORK_ROCKET,
-            EntityType.WITHER_SKULL,
-            EntityType.WIND_CHARGE,
-            EntityType.TEXT_DISPLAY,
-            EntityType.SPECTRAL_ARROW,
-            EntityType.SMALL_FIREBALL,
-            EntityType.SHULKER_BULLET,
-            EntityType.SNOWBALL,
-            EntityType.OMINOUS_ITEM_SPAWNER,
-            EntityType.PAINTING,
-            EntityType.EGG,
-            EntityType.ENDER_PEARL,
-            EntityType.EVOKER_FANGS,
-            EntityType.EXPERIENCE_BOTTLE,
-            EntityType.EXPERIENCE_ORB,
-            EntityType.FISHING_BOBBER,
-            EntityType.LEASH_KNOT,
-            EntityType.LIGHTNING_BOLT,
-            EntityType.LLAMA_SPIT,
-            EntityType.MARKER,
-            EntityType.POTION,
-            EntityType.UNKNOWN,
-            EntityType.HOPPER_MINECART
-    );
-
-    private final List<Material> unthrowableBlocks = Arrays.asList(
-            Material.COMMAND_BLOCK,
-            Material.CHAIN_COMMAND_BLOCK,
-            Material.REPEATING_COMMAND_BLOCK,
-            Material.BEDROCK,
-            Material.BARRIER,
-            Material.AIR,
-            Material.CAVE_AIR,
-            Material.VOID_AIR,
-            Material.END_PORTAL_FRAME,
-            Material.NETHER_PORTAL,
-            Material.END_GATEWAY,
-            Material.END_PORTAL,
-            Material.STRUCTURE_BLOCK,
-            Material.STRUCTURE_VOID,
-            Material.REINFORCED_DEEPSLATE,
-            Material.JIGSAW,
-            Material.LIGHT,
-            Material.TALL_GRASS,
-            Material.TALL_SEAGRASS,
-            Material.LARGE_FERN,
-            Material.SUNFLOWER,
-            Material.LILAC,
-            Material.ROSE_BUSH,
-            Material.PEONY,
-            Material.BIG_DRIPLEAF,
-            Material.SMALL_DRIPLEAF,
-            Material.PITCHER_PLANT,
-            Material.SPAWNER,
-            Material.PISTON_HEAD,
-            Material.MOVING_PISTON,
-            Material.REDSTONE_WIRE,
-            Material.WHITE_BED,
-            Material.ORANGE_BED,
-            Material.MAGENTA_BED,
-            Material.LIGHT_BLUE_BED,
-            Material.YELLOW_BED,
-            Material.LIME_BED,
-            Material.PINK_BED,
-            Material.GRAY_BED,
-            Material.LIGHT_GRAY_BED,
-            Material.CYAN_BED,
-            Material.PURPLE_BED,
-            Material.BLUE_BED,
-            Material.BROWN_BED,
-            Material.GREEN_BED,
-            Material.RED_BED,
-            Material.BLACK_BED
-    );
 
     // Picking up Players and Entities
     @EventHandler
@@ -156,7 +71,7 @@ public class Launch implements Listener {
         if(!p.isSneaking() || !p.getInventory().getItemInMainHand().getType().isAir()) { return;}
 
         Entity clicked = e.getRightClicked();
-        if(unthrowableEntities.contains(clicked.getType())) { return; }
+        if(config.getStringList("blockedEntities").contains(clicked.getType().toString())) { return; }
 
         // Check if the entity is inside spawn protection
         if(inSpawnProt(clicked.getLocation())) {
@@ -219,6 +134,7 @@ public class Launch implements Listener {
         if(passenger == null) {
             if(action != Action.RIGHT_CLICK_BLOCK) {return;}
             if (!p.isSneaking() || !p.getInventory().getItemInMainHand().getType().isAir()) { return;}
+            if(p.getGameMode() == GameMode.ADVENTURE) {return;}
 
             // permissions
             if(!config.getBoolean("blockThrowEnabled")) { return; }
@@ -231,7 +147,7 @@ public class Launch implements Listener {
             Block b = e.getClickedBlock();
             if (b == null) { return; }
             if (!plugin.getConfig().getBoolean("breakThingsMode")) {
-                if (unthrowableBlocks.contains(b.getType())) { return; }
+                if(config.getStringList("blockedBlocks").contains(b.getType().toString())) { return; }
                 if(b.getState() instanceof Container) { return; }
                 if(b.getBlockData() instanceof Door) { return; }
             }
