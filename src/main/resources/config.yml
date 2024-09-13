@@ -17,9 +17,11 @@ throwBlocksRequiresPermission: false
 # Use the old method for handling blocks as entities. This should only be used if my version has bugs, or if your
 # server suffers lag problems with large amounts of entities
 oldBlockHandling: false
+useCustomSounds: false
+blockDespawnMinutes: 5
+ignoreSpawnProt: false
 
-# Allow blocks such as bedrock, end portals, and other strange blocks to be picked up?
-breakThingsMode: false
+#
 
 # List of blocks that should not be throwable
 blockedBlocks:

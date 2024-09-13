@@ -24,7 +24,9 @@ public class SettingsManager {
             "playerThrowEnabled",
             "playerThrowPower",
             "oldBlockHandling",
-            "breakThingsMode"
+            "useCustomSounds",
+            "blockDespawnMinutes",
+            "ignoreSpawnProt"
     );
 
     private static final List<String> booleanSettings = Arrays.asList(
@@ -35,13 +37,15 @@ public class SettingsManager {
             "throwEntitiesRequiresPermission",
             "throwBlocksRequiresPermission",
             "oldBlockHandling",
-            "breakThingsMode"
+            "useCustomSounds",
+            "ignoreSpawnProt"
     );
 
     private static final List<String> floatSettings = Arrays.asList(
             "playerThrowPower",
             "entityThrowPower",
-            "blockThrowPower"
+            "blockThrowPower",
+            "blockDespawnMinutes"
     );
 
     private static final List<String> settingsOptions = Arrays.asList(

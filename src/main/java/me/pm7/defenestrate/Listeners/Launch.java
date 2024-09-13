@@ -146,11 +146,7 @@ public class Launch implements Listener {
 
             Block b = e.getClickedBlock();
             if (b == null) { return; }
-            if (!plugin.getConfig().getBoolean("breakThingsMode")) {
-                if(config.getStringList("blockedBlocks").contains(b.getType().toString())) { return; }
-                if(b.getState() instanceof Container) { return; }
-                if(b.getBlockData() instanceof Door) { return; }
-            }
+            if(config.getStringList("blockedBlocks").contains(b.getType().toString())) { return; }
 
             // Check if the block is inside spawn protection
             if(inSpawnProt(b.getLocation())) {
@@ -196,8 +192,11 @@ public class Launch implements Listener {
                 p.addPassenger(base);
             }
 
-            float pitch = (float) (0.75 + (Math.random() * (1.25 - 0.75)));
-            p.playSound(p, b.getBlockData().getSoundGroup().getBreakSound(), 5, pitch);
+            if(!config.getBoolean("useCustomSounds")) {
+                p.playSound(p, b.getBlockData().getSoundGroup().getBreakSound(), 5, 0.8f);
+            } else {
+                p.playSound(p, "defenestrate.pickup", 5, 1);
+            }
 
 
             b.setType(Material.AIR);
@@ -223,6 +222,8 @@ public class Launch implements Listener {
     }
 
     public boolean inSpawnProt(Location location) {
+        if(plugin.getConfig().getBoolean("ignoreSpawnProt")) { return false;}
+
         World world = location.getWorld();
 
         Location spawnLocation = world.getSpawnLocation();
@@ -266,5 +267,9 @@ public class Launch implements Listener {
 
         Vector direction = p.getLocation().getDirection();
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> passenger.setVelocity(direction.multiply(power)), 3L);
+
+        if(plugin.getConfig().getBoolean("useCustomSounds")) {
+            p.getWorld().playSound(p.getLocation(), "defenestrate.throw", 1, 1f);
+        }
     }
 }

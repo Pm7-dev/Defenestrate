@@ -38,8 +38,6 @@ public class BlockEntityManager {
 
     public BlockEntityManager(Zoglin zoglin) {
 
-
-
         // Repeating task that loops every few ticks to check if the block is done moving
         this.task = new BukkitRunnable() {
             @Override
@@ -113,8 +111,8 @@ public class BlockEntityManager {
         }.runTaskTimer(plugin, 10L, 5L);
 
 
-
-
+        long despawnTicks = (long) (plugin.getConfig().getDouble("blockDespawnMinutes") * 1200);
+        if(despawnTicks == 0) { return; }
 
         // 5 minute task to determine if we should just drop the block
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
@@ -149,7 +147,7 @@ public class BlockEntityManager {
             in.remove();
             zoglin.remove();
             cancelTask();
-        }, 6000L);
+        }, despawnTicks);
     }
 
     public void cancelTask() {
@@ -159,6 +157,8 @@ public class BlockEntityManager {
     }
 
     public boolean inSpawnProt(Location location) {
+        if(plugin.getConfig().getBoolean("ignoreSpawnProt")) { return false;}
+
         World world = location.getWorld();
 
         Location spawnLocation = world.getSpawnLocation();
@@ -184,8 +184,12 @@ public class BlockEntityManager {
     void dropBlock(Location loc, Zoglin zoglin, Interaction in, BlockDisplay bd) {
         Block block = zoglin.getLocation().getBlock();
 
-        float pitch = (float) (0.75 + (Math.random() * (1.25 - 0.75)));
-        block.getWorld().playSound(block.getLocation(), bd.getBlock().getSoundGroup().getPlaceSound(), 1, pitch);
+
+        if(!plugin.getConfig().getBoolean("useCustomSounds")) {
+            block.getWorld().playSound(block.getLocation(), bd.getBlock().getSoundGroup().getPlaceSound(), 1, 0.8f);
+        } else {
+            block.getWorld().playSound(block.getLocation(), "defenestrate.place", 1, 1f);
+        }
 
         if(block.getType().isAir() || Tag.REPLACEABLE.isTagged(block.getType()) || !block.getType().isSolid()) {
 
@@ -201,11 +205,8 @@ public class BlockEntityManager {
 
                 // if the block is being placed in the nether, make sure it's not water things
                 if(block.getWorld().getEnvironment() == World.Environment.NETHER && isWatered(block.getBlockData())) {
-                    if(!plugin.getConfig().getBoolean("breakThingsMode")) {
-                        loc.getWorld().dropItemNaturally(loc.getBlock().getLocation().add(0.5, 0.5, 0.5), new ItemStack(bd.getBlock().getMaterial()));
-                    }
+                    loc.getWorld().dropItemNaturally(loc.getBlock().getLocation().add(0.5, 0.5, 0.5), new ItemStack(bd.getBlock().getMaterial()));
                 }
-
 
                 else {
                     block.setBlockData(bd.getBlock());

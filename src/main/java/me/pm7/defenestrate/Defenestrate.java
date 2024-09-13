@@ -41,6 +41,7 @@ public final class Defenestrate extends JavaPlugin {
         killRemainingBlocks();
 
         getServer().getPluginManager().registerEvents(new PreventZoglinInteraction(), this);
+        getServer().getPluginManager().registerEvents(new EnterVehicle(), this);
         getServer().getPluginManager().registerEvents(new Disconnect(), this);
         getServer().getPluginManager().registerEvents(new Launch(), this);
         getServer().getPluginManager().registerEvents(new Portal(), this);
@@ -51,8 +52,8 @@ public final class Defenestrate extends JavaPlugin {
         SettingsManager.setup();
 
         int spawnProt = Bukkit.getServer().getSpawnRadius();
-        if(spawnProt > 0) {
-            getLogger().log(Level.WARNING, "This server has spawn protection enabled! Defenestrate will not be able to be used by non-operators until they are " + spawnProt + " blocks away from spawn!");
+        if(spawnProt > 0 && !getConfig().getBoolean("ignoreSpawnProt")) {
+            getLogger().log(Level.WARNING, "This server has spawn protection enabled and \"ignoreSpawnProt\" is false! Defenestrate will not be able to be used by non-operators until they are " + spawnProt + " blocks away from spawn!");
         }
     }
 
