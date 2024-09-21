@@ -48,6 +48,7 @@ Other settings:
 - `useCustomSounds (Default: false)` - If you want to make a custom texture pack that replaces sounds for picking up, throwing, and when a block lands, enable this option. Enable this option without any texture pack to disable this plugin's sounds. The sounds to overwrite would be "defenestrate.pickup", "defenestrate.throw", and "defenestrate.place"
 - `blockDespawnMinutes (Default: 5)` - The amount of minutes before a custom block entity will despawn after being thrown. Disabled when value is 0
 - `ignoreSpawnProt (Default: false)` - If the plugin should ignore spawn protection, and allow things to be picked up inside of it from non-operators.
+- `allowStealing (Default: true)` - If players should be allowed to take blocks off of others' heads
 </details>
 
 ## Permissions

@@ -3,18 +3,23 @@ package me.pm7.defenestrate.utils;
 import me.pm7.defenestrate.Defenestrate;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.Container;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Waterlogged;
 import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Interaction;
 import org.bukkit.entity.Zoglin;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 
 public class BlockEntityManager {
@@ -185,11 +190,8 @@ public class BlockEntityManager {
         Block block = zoglin.getLocation().getBlock();
 
 
-        if(!plugin.getConfig().getBoolean("useCustomSounds")) {
-            block.getWorld().playSound(block.getLocation(), bd.getBlock().getSoundGroup().getPlaceSound(), 1, 0.8f);
-        } else {
-            block.getWorld().playSound(block.getLocation(), "defenestrate.place", 1, 1f);
-        }
+        if(!plugin.getConfig().getBoolean("useCustomSounds")) { block.getWorld().playSound(block.getLocation(), bd.getBlock().getSoundGroup().getPlaceSound(), 1, 0.8f); }
+        else { block.getWorld().playSound(block.getLocation(), "defenestrate.place", 1, 1f); }
 
         if(block.getType().isAir() || Tag.REPLACEABLE.isTagged(block.getType()) || !block.getType().isSolid()) {
 
@@ -197,6 +199,26 @@ public class BlockEntityManager {
             if(inSpawnProt(block.getLocation())) {
                 if(bd.getBlock().getMaterial().isItem()) {
                     loc.getWorld().dropItemNaturally(loc.getBlock().getLocation().add(0.5, 0.5, 0.5), new ItemStack(bd.getBlock().getMaterial()));
+
+                    // container stuff
+                    HashMap<UUID, Inventory> invList = plugin.getInvList();
+                    if(invList.containsKey(zoglin.getUniqueId())) {
+                        Inventory inv = invList.get(zoglin.getUniqueId());
+                        World world = loc.getWorld();
+                        double power = 0.2D;
+                        for(ItemStack item : inv.getContents()) {
+                            if(item != null && item.getItemMeta() != null) {
+                                if(item.getType() == Material.SPLASH_POTION && item.getItemMeta().getItemName().equals("Orb of Pondering")) {
+                                    continue;
+                                }
+                                double xVel = -power + (Math.random() * (power*2));
+                                double zVel = -power + (Math.random() * (power*2));
+                                Entity dropped = world.dropItem(loc, item);
+                                dropped.setVelocity(new Vector(xVel, 0.3, zVel));
+                            }
+                        }
+                        invList.remove(zoglin.getUniqueId());
+                    }
                 }
             }
 
@@ -206,10 +228,37 @@ public class BlockEntityManager {
                 // if the block is being placed in the nether, make sure it's not water things
                 if(block.getWorld().getEnvironment() == World.Environment.NETHER && isWatered(block.getBlockData())) {
                     loc.getWorld().dropItemNaturally(loc.getBlock().getLocation().add(0.5, 0.5, 0.5), new ItemStack(bd.getBlock().getMaterial()));
+
+                    // container stuff
+                    HashMap<UUID, Inventory> invList = plugin.getInvList();
+                    if(invList.containsKey(zoglin.getUniqueId())) {
+                        Inventory inv = invList.get(zoglin.getUniqueId());
+                        World world = loc.getWorld();
+                        double power = 0.2D;
+                        for(ItemStack item : inv.getContents()) {
+                            if(item != null && item.getItemMeta() != null) {
+                                if(item.getType() == Material.SPLASH_POTION && item.getItemMeta().getItemName().equals("Orb of Pondering")) {
+                                    continue;
+                                }
+                                double xVel = -power + (Math.random() * (power*2));
+                                double zVel = -power + (Math.random() * (power*2));
+                                Entity dropped = world.dropItem(loc, item);
+                                dropped.setVelocity(new Vector(xVel, 0.3, zVel));
+                            }
+                        }
+                        invList.remove(zoglin.getUniqueId());
+                    }
                 }
 
                 else {
                     block.setBlockData(bd.getBlock());
+
+                    HashMap<UUID, Inventory> invList = plugin.getInvList();
+                    if(invList.containsKey(zoglin.getUniqueId())) {
+                        Container c = (Container) block.getState();
+                        c.getInventory().setContents(invList.get(zoglin.getUniqueId()).getContents());
+                        invList.remove(zoglin.getUniqueId());
+                    }
                 }
             }
         }
@@ -218,6 +267,26 @@ public class BlockEntityManager {
         else {
             if(bd.getBlock().getMaterial().isItem()) {
                 loc.getWorld().dropItemNaturally(loc.getBlock().getLocation().add(0.5, 0.5, 0.5), new ItemStack(bd.getBlock().getMaterial()));
+
+                // container stuff
+                HashMap<UUID, Inventory> invList = plugin.getInvList();
+                if(invList.containsKey(zoglin.getUniqueId())) {
+                    Inventory inv = invList.get(zoglin.getUniqueId());
+                    World world = loc.getWorld();
+                    double power = 0.2D;
+                    for(ItemStack item : inv.getContents()) {
+                        if(item != null && item.getItemMeta() != null) {
+                            if(item.getType() == Material.SPLASH_POTION && item.getItemMeta().getItemName().equals("Orb of Pondering")) {
+                                continue;
+                            }
+                            double xVel = -power + (Math.random() * (power*2));
+                            double zVel = -power + (Math.random() * (power*2));
+                            Entity dropped = world.dropItem(loc, item);
+                            dropped.setVelocity(new Vector(xVel, 0.3, zVel));
+                        }
+                    }
+                    invList.remove(zoglin.getUniqueId());
+                }
             }
         }
 

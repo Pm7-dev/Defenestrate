@@ -5,6 +5,8 @@ import me.pm7.defenestrate.Defenestrate;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
+import org.bukkit.block.Container;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -14,6 +16,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Transformation;
@@ -183,6 +186,7 @@ public class Launch implements Listener {
                 Location loc = p.getLocation();
                 loc.setY(500.0d);
 
+
                 Zoglin base = (Zoglin) world.spawnEntity(loc, EntityType.ZOGLIN);
                 base.setBaby();
                 base.setRemoveWhenFarAway(false);
@@ -193,17 +197,26 @@ public class Launch implements Listener {
                 base.getAttribute(Attribute.GENERIC_SCALE).setBaseValue(0.01d);
                 plugin.registerBlock(base.getUniqueId());
 
+
                 Interaction hitbox = (Interaction) world.spawnEntity(loc, EntityType.INTERACTION);
                 hitbox.setRotation(0, 0);
                 base.addPassenger(hitbox);
+
 
                 BlockDisplay block = (BlockDisplay) world.spawnEntity(loc, EntityType.BLOCK_DISPLAY);
                 block.setRotation(0, 0); // paper servers throw a fit when you don't have this (the block starts facing the same direction the player is for some reason)
                 block.setTransformation(new Transformation(new Vector3f(-0.5f, -0.04375f, -0.5f), new AxisAngle4f(0, 0, 0, 0), new Vector3f(1f, 1f, 1f), new AxisAngle4f(0, 0, 0, 0)));
                 block.setBlock(b.getBlockData());
+                if(b.getState() instanceof Container c) {
+                    plugin.getInvList().put(base.getUniqueId(), c.getInventory());
+                }
 
                 hitbox.addPassenger(block);
                 p.addPassenger(base);
+
+                // farticlr
+                BlockData i = b.getBlockData();
+                world.spawnParticle(Particle.BLOCK, b.getLocation().add(0.5, 0.5, 0.5), 20, 0.35d, 0.35d,0.35d, i);
             }
 
             if(!config.getBoolean("useCustomSounds")) {
@@ -211,6 +224,7 @@ public class Launch implements Listener {
             } else {
                 p.playSound(p, "defenestrate.pickup", 5, 1);
             }
+
 
 
             b.setType(Material.AIR);

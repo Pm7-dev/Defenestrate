@@ -12,8 +12,10 @@ import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
@@ -111,6 +113,9 @@ public final class Defenestrate extends JavaPlugin {
     public void unregisterBlock(UUID uuid) {
         blocks.remove(uuid);
     }
+
+    private final HashMap<UUID, Inventory> invList = new HashMap<>();
+    public HashMap<UUID, Inventory> getInvList() {return invList;}
 
     public static Defenestrate getPlugin() {return plugin;}
 }
