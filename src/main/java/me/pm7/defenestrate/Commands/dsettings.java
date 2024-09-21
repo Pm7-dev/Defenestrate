@@ -3,7 +3,6 @@ package me.pm7.defenestrate.Commands;
 import me.pm7.defenestrate.Defenestrate;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -13,7 +12,6 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class dsettings extends SettingsManager implements CommandExecutor, TabExecutor {
     private final Defenestrate plugin = Defenestrate.getPlugin();

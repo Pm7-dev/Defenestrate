@@ -5,8 +5,6 @@ import me.pm7.defenestrate.Defenestrate;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
-import org.bukkit.block.Container;
-import org.bukkit.block.data.type.Door;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -93,19 +91,35 @@ public class Launch implements Listener {
             }
 
             if(clicked.isInsideVehicle() && plugin.blocks().contains(clicked.getVehicle().getUniqueId())) {
+
+                // Make sure the player is not already carrying something
                 Entity passenger = plugin.getPassenger(p);
-                if (passenger == null) {
-                    if(clicked.getVehicle().isInsideVehicle()) {
+                if (passenger != null) { return; }
+
+                if(clicked.getVehicle().isInsideVehicle()) {
+                    if(config.getBoolean("allowStealing")) {
                         clicked.getVehicle().getVehicle().removePassenger(clicked.getVehicle());
+                    } else {
+                        return;
                     }
-                    p.addPassenger(clicked.getVehicle());
                 }
+                p.addPassenger(clicked.getVehicle());
+
             }
         } else {
 
+            // Make sure the player is not already carrying something
             Entity passenger = plugin.getPassenger(p);
             if (passenger == null) {
-                p.addPassenger(clicked);
+                if(clicked.isInsideVehicle()) {
+                    if(config.getBoolean("allowStealing")) {
+                        p.addPassenger(clicked);
+                    } else {
+                        return;
+                    }
+                } else {
+                    p.addPassenger(clicked);
+                }
             }
         }
 

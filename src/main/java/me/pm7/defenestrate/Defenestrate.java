@@ -6,6 +6,8 @@ import me.pm7.defenestrate.Listeners.*;
 import me.pm7.defenestrate.utils.UpdateCheck;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -23,9 +25,12 @@ public final class Defenestrate extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        getLogger().info("Defenestrate version " + this.getDescription().getVersion() + " has been loaded!");
+
+        // funky little load message
+        getLogger().info("Defenestrate v" + this.getDescription().getVersion() + " has been loaded!");
         plugin = this;
 
+        // Check for plugin updates
         new UpdateCheck(this, 119373).getVersion(version -> {
             if (!this.getDescription().getVersion().equals(version)) {
                 getLogger().warning("There is a new Defenestrate update available!");
@@ -35,11 +40,15 @@ public final class Defenestrate extends JavaPlugin {
             }
         });
 
+        // Load config values and load defaults of any missing config values
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
+        saveConfig();
 
+        // In case there are any custom block entities that are not yet gone
         killRemainingBlocks();
 
+        // Register all the listeners and stuff
         getServer().getPluginManager().registerEvents(new PreventZoglinInteraction(), this);
         getServer().getPluginManager().registerEvents(new EnterVehicle(), this);
         getServer().getPluginManager().registerEvents(new Disconnect(), this);
@@ -49,8 +58,10 @@ public final class Defenestrate extends JavaPlugin {
         getCommand("dsettings").setTabCompleter(new dsettings());
         getCommand("dsettings").setExecutor(new dsettings());
 
+        // Load blocked blocks and blocked entities into a list
         SettingsManager.setup();
 
+        // Warning for servers that have spawn protection enabled
         int spawnProt = Bukkit.getServer().getSpawnRadius();
         if(spawnProt > 0 && !getConfig().getBoolean("ignoreSpawnProt")) {
             getLogger().log(Level.WARNING, "This server has spawn protection enabled and \"ignoreSpawnProt\" is false! Defenestrate will not be able to be used by non-operators until they are " + spawnProt + " blocks away from spawn!");

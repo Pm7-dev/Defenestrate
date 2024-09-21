@@ -26,7 +26,8 @@ public class SettingsManager {
             "oldBlockHandling",
             "useCustomSounds",
             "blockDespawnMinutes",
-            "ignoreSpawnProt"
+            "ignoreSpawnProt",
+            "allowStealing"
     );
 
     private static final List<String> booleanSettings = Arrays.asList(
@@ -38,7 +39,8 @@ public class SettingsManager {
             "throwBlocksRequiresPermission",
             "oldBlockHandling",
             "useCustomSounds",
-            "ignoreSpawnProt"
+            "ignoreSpawnProt",
+            "allowStealing"
     );
 
     private static final List<String> floatSettings = Arrays.asList(

@@ -20,8 +20,7 @@ oldBlockHandling: false
 useCustomSounds: false
 blockDespawnMinutes: 5
 ignoreSpawnProt: false
-
-#
+allowStealing: true
 
 # List of blocks that should not be throwable
 blockedBlocks:
@@ -125,4 +124,3 @@ blockedEntities:
   - MARKER
   - POTION
   - UNKNOWN
-  - HOPPER_MINECART
