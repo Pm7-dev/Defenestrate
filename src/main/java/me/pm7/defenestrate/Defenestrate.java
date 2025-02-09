@@ -2,9 +2,11 @@ package me.pm7.defenestrate;
 
 import me.pm7.defenestrate.Commands.SettingsManager;
 import me.pm7.defenestrate.Commands.dsettings;
+import me.pm7.defenestrate.Commands.removeblocks;
 import me.pm7.defenestrate.Listeners.*;
 import me.pm7.defenestrate.utils.UpdateCheck;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -39,6 +41,7 @@ public final class Defenestrate extends JavaPlugin {
                 getLogger().warning("");
                 getLogger().warning("The latest version is " + version);
                 getLogger().warning("It is recommended that you look at the changelog for the latest version, as it may have some important changes/bug fixes");
+                getLogger().warning("the plugin can be found at https://modrinth.com/plugin/defenestrate or https://www.spigotmc.org/resources/defenestrate-throw-blocks-entities-and-your-friends.119373/");
             }
         });
 
@@ -48,7 +51,7 @@ public final class Defenestrate extends JavaPlugin {
         saveConfig();
 
         // In case there are any custom block entities that are not yet gone
-        killRemainingBlocks();
+        killRemainingBlocks(-1, null);
 
         // Register all the listeners and stuff
         getServer().getPluginManager().registerEvents(new PreventZoglinInteraction(), this);
@@ -59,6 +62,7 @@ public final class Defenestrate extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new Death(), this);
         getCommand("dsettings").setTabCompleter(new dsettings());
         getCommand("dsettings").setExecutor(new dsettings());
+        getCommand("removeblocks").setExecutor(new removeblocks());
 
         // Load blocked blocks and blocked entities into a list
         SettingsManager.setup();
@@ -85,7 +89,7 @@ public final class Defenestrate extends JavaPlugin {
     }
 
     // If there are any custom block entities when the plugin starts, they should be removed.
-    private void killRemainingBlocks() {
+    public void killRemainingBlocks(double radius, Location loc) {
         for (World w : Bukkit.getWorlds()) {
             for(Entity e : w.getEntities()) {
                 if(!e.getPassengers().isEmpty() && e.getType() == EntityType.ZOGLIN) {
@@ -93,6 +97,14 @@ public final class Defenestrate extends JavaPlugin {
                     if(in.getType() == EntityType.INTERACTION && !in.getPassengers().isEmpty()) {
                         Entity bd = in.getPassengers().getFirst();
                         if(bd instanceof BlockDisplay) {
+
+                            // If radius is specified, check for distance
+                            if(radius != -1) {
+                                Location bLoc = bd.getLocation();
+                                double distance = Math.sqrt(Math.pow(bLoc.getX()-loc.getX(),2)+Math.pow(bLoc.getY()-loc.getY(),2)+Math.pow(bLoc.getZ()-loc.getZ(),2));
+                                if(distance > radius) continue;
+                            }
+
                             e.getPassengers().getFirst().getPassengers().getFirst().remove();
                             e.getPassengers().getFirst().remove();
                             e.remove();

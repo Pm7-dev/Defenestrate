@@ -8,6 +8,9 @@ commands:
   dsettings:
     description: "Manages the data for the Defenestrate Plugin"
     usage: "/dsettings [get | set] [setting] [newValue] - Displays specified setting/sets it to the new value\n/dsettings list - Lists the all of the settings\n/dsettings blacklist [add/remove block/entity] [name] - Adds/removes a block/entity to/from the blacklist\n/dsettings blacklist [listBlock | listEntity] - Lists the current blocked entities/blocks"
+  removeblocks:
+    description: "Removes block entities (within a radius, if specified). Use if there is a block entity that is stuck as an entity"
+    usage: "/removeblocks - Removes all block entities\n/removeblocks [radius] - Removes block entities within the specified radius"
 permissions:
   defenestrate.blocks:
     description: "Permission needed for non-ops to pick up and throw blocks if throwBlocksRequiresPermission is true"

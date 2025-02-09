@@ -66,8 +66,9 @@ The old block handling method uses Minecraft's "falling block" entity. The issue
 My solution to this is to create a ""custom"" block entity using the 1.19.4 Block Displays and Interactions, along with a very shrunk down baby zoglin to handle the gravity. This means that the block entities are actually 3 entities stacked on top of each other. If your server starts lagging because of players throwing blocks, it may be worth it to use the old block handling. 
 
 ## Other Notes
-(just one for now)  
-If the block throw power is set to exactly 1.5, throwing a block directly upwards will cause it to be placed as a block in midair. Powers 1.51 and 1.49 have been tested and work as usual. This is because of a coincidence in timing where the block will have the exact same velocity as an unmoving block when the plugin checks it. Fixing this would require much more processing power than it is worth.
+If the block throw power is set to exactly 1.5, throwing a block directly upwards will cause it to be placed as a block in midair. Powers 1.51 and 1.49 have been tested and work as usual. This is because of a coincidence in timing where the block will have the exact same velocity as an unmoving block when the plugin checks it. Fixing this would require much more processing power than it is worth. 
+
+If your server crashes while blocks are flying, the blocks might not be correctly removed by the plugin upon the next startup. as of version 1.41, there is now a `/removeblocks [radius (optional)]` command that can be used to kill either all block entities if no radius is specified, or just the block entities within the specified radius.
 
 ## Issues and Additional Features
 If you've found an issue with the plugin or have a request for a new feature, head over to the [issues](https://github.com/Pm7-dev/Defenestrate/issues) page and create an issue. Please be sure to include as much detail about the bug/feature request as possible in the issue.
